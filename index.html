@@ -19,120 +19,199 @@
     transition: background 0.25s ease;
     position: fixed;
     inset: 0;
+    padding: env(safe-area-inset-top, 12px) 0 env(safe-area-inset-bottom, 12px);
   }
-  body.airborne { background: radial-gradient(circle at 50% 30%, #1d3a8a 0%, #06080f 70%); }
-  body.peak     { background: radial-gradient(circle at 50% 35%, #0a6e4a 0%, #06080f 70%); }
+  body.airborne { background: radial-gradient(circle at 50% 25%, #1d3a8a 0%, #06080f 70%); }
+  body.peak     { background: radial-gradient(circle at 50% 30%, #0a6e4a 0%, #06080f 70%); }
 
   #brand {
-    position: absolute; top: env(safe-area-inset-top, 18px); left: 0; right: 0;
-    margin-top: 18px;
-    font-size: 15px; letter-spacing: 4px; font-weight: 700;
+    font-size: 13px; letter-spacing: 4px; font-weight: 700;
     text-transform: uppercase; color: rgba(255,255,255,0.4);
+    margin-bottom: 4px;
+  }
+  #player {
+    font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 10px;
+  }
+  #player b { color: #6ea0ff; }
+  #player button {
+    background: none; border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.6);
+    border-radius: 999px; font-size: 11px; padding: 3px 10px; margin-left: 6px; font-weight: 600;
   }
 
   #label {
-    font-size: 16px; letter-spacing: 3px; text-transform: uppercase;
-    color: rgba(255,255,255,0.55); margin-bottom: 6px; min-height: 20px;
-    font-weight: 600;
+    font-size: 14px; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(255,255,255,0.55); margin-bottom: 2px; min-height: 18px; font-weight: 600;
   }
-
   #number {
-    font-size: 34vw;
-    font-weight: 800;
-    line-height: 0.95;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -2px;
+    font-size: 26vw; font-weight: 800; line-height: 0.95;
+    font-variant-numeric: tabular-nums; letter-spacing: -2px;
     text-shadow: 0 0 60px rgba(80,140,255,0.45);
   }
-  #unit { font-size: 7vw; font-weight: 600; color: rgba(255,255,255,0.6); margin-top: 4px; }
-  #feet { font-size: 5.5vw; font-weight: 500; color: rgba(255,255,255,0.4); margin-top: 10px; min-height: 1.2em; }
+  #unit { font-size: 5.5vw; font-weight: 600; color: rgba(255,255,255,0.6); }
+  #feet { font-size: 4.2vw; font-weight: 500; color: rgba(255,255,255,0.4); margin-top: 4px; min-height: 1.2em; }
+  #hint { font-size: 13px; color: rgba(255,255,255,0.45); padding: 8px 24px 0; font-weight: 500; min-height: 2.4em; }
 
-  #hint {
-    position: absolute; bottom: env(safe-area-inset-bottom, 30px); left: 0; right: 0;
-    margin-bottom: 28px;
-    font-size: 16px; color: rgba(255,255,255,0.45); padding: 0 24px; font-weight: 500;
+  #board {
+    width: 100%; max-width: 420px; margin-top: 10px; padding: 0 22px;
   }
+  #board h2 {
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); margin-bottom: 8px; font-weight: 700;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  #board h2 button {
+    background: none; border: none; color: rgba(255,255,255,0.3); font-size: 11px;
+    text-transform: none; letter-spacing: 0; font-weight: 600;
+  }
+  #rows { display: flex; flex-direction: column; gap: 5px; }
+  .row {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.06); border-radius: 12px; padding: 9px 14px;
+    font-size: 16px; transition: background 0.2s;
+  }
+  .row.me { background: rgba(46,107,255,0.28); }
+  .row.fresh { background: rgba(16,185,129,0.35); }
+  .row .rank { width: 22px; font-weight: 800; color: rgba(255,255,255,0.5); text-align: left; }
+  .row .nm { flex: 1; text-align: left; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .ht { font-weight: 800; font-variant-numeric: tabular-nums; }
+  .row .ft { font-size: 12px; color: rgba(255,255,255,0.5); width: 54px; text-align: right; }
+  #empty { font-size: 13px; color: rgba(255,255,255,0.3); padding: 14px 0; }
 
-  #start {
-    position: fixed; inset: 0; background: #06080f;
+  /* Overlays */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(6,8,15,0.96);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 28px; padding: 32px; z-index: 10;
+    gap: 22px; padding: 32px; z-index: 10;
   }
-  #start h1 { font-size: 13vw; font-weight: 800; letter-spacing: -2px; }
-  #start p { font-size: 17px; color: rgba(255,255,255,0.55); max-width: 320px; line-height: 1.5; }
-  #startBtn {
-    margin-top: 8px;
-    font-size: 22px; font-weight: 700;
-    padding: 20px 48px; border-radius: 999px; border: none;
-    background: #2f6bff; color: #fff;
-    box-shadow: 0 8px 30px rgba(47,107,255,0.5);
-    cursor: pointer;
+  .overlay h1 { font-size: 13vw; font-weight: 800; letter-spacing: -2px; }
+  .overlay p { font-size: 16px; color: rgba(255,255,255,0.55); max-width: 320px; line-height: 1.5; }
+  .overlay input {
+    font-size: 22px; text-align: center; padding: 14px 18px; border-radius: 14px;
+    border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #fff;
+    width: 100%; max-width: 300px; font-weight: 700; font-family: inherit;
   }
-  #startBtn:active { transform: scale(0.96); }
-  #err { color: #ff8080; font-size: 15px; min-height: 1.2em; max-width: 320px; }
+  .btn {
+    font-size: 20px; font-weight: 700; padding: 18px 44px; border-radius: 999px; border: none;
+    background: #2f6bff; color: #fff; box-shadow: 0 8px 30px rgba(47,107,255,0.5);
+  }
+  .btn:active { transform: scale(0.96); }
+  #err { color: #ff8080; font-size: 14px; min-height: 1.2em; max-width: 320px; }
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
-  <div id="brand">High&nbsp;Phone</div>
+  <div id="brand">High&nbsp;Phone 🚀</div>
+  <div id="player">Player: <b id="pname">—</b><button id="changeBtn">change</button></div>
 
   <div id="label">Ready</div>
   <div id="number">0.00</div>
   <div id="unit">meters</div>
   <div id="feet">0.0 ft</div>
-
   <div id="hint">Toss your phone straight up &amp; catch it 🙌</div>
 
-  <div id="start">
+  <div id="board">
+    <h2>🏆 Leaderboard <button id="clearBtn">clear</button></h2>
+    <div id="rows"></div>
+    <div id="empty">No tosses yet — be the first!</div>
+  </div>
+
+  <!-- Start / permission overlay -->
+  <div id="start" class="overlay">
     <h1>HIGH&nbsp;PHONE</h1>
     <p>Throw your phone up and catch it. We'll measure how high it flew.</p>
-    <button id="startBtn">Start</button>
+    <input id="nameInput" type="text" placeholder="Your name" maxlength="14" autocomplete="off">
+    <button id="startBtn" class="btn">Start</button>
     <div id="err"></div>
+  </div>
+
+  <!-- Change-player overlay -->
+  <div id="nameOverlay" class="overlay hidden">
+    <h1 style="font-size:9vw">Who's next?</h1>
+    <input id="nameInput2" type="text" placeholder="Your name" maxlength="14" autocomplete="off">
+    <button id="nameSaveBtn" class="btn">Let's go</button>
   </div>
 
 <script>
 (function () {
   "use strict";
   const G = 9.81;
+  const FREEFALL_ENTER = 3.5;   // m/s^2 below this => airborne
+  const LAND_EXIT      = 6.5;    // m/s^2 above this => caught
+  const MIN_FLIGHT_MS  = 120;
+  const MAX_FLIGHT_MS  = 4000;
+  const LS_BOARD = 'highphone.board';
+  const LS_NAME  = 'highphone.name';
 
-  // Tunable thresholds (m/s^2)
-  const FREEFALL_ENTER = 3.5;   // below this magnitude => airborne (weightless)
-  const LAND_EXIT      = 6.5;    // back above this => caught / landed
-  const MIN_FLIGHT_MS  = 120;    // ignore flights shorter than this (noise)
-  const MAX_FLIGHT_MS  = 4000;   // safety reset
+  const $ = function (id) { return document.getElementById(id); };
+  const $number = $('number'), $unit = $('unit'), $feet = $('feet'),
+        $label = $('label'), $hint = $('hint'), $rows = $('rows'),
+        $empty = $('empty'), $pname = $('pname');
 
-  const $number = document.getElementById('number');
-  const $unit   = document.getElementById('unit');
-  const $feet   = document.getElementById('feet');
-  const $label  = document.getElementById('label');
-  const $hint   = document.getElementById('hint');
-  const $start  = document.getElementById('start');
-  const $startBtn = document.getElementById('startBtn');
-  const $err    = document.getElementById('err');
+  let state = 'ready', releaseTime = 0, bestPeak = 0, rafId = null;
+  let player = 'Player';
+  let board = [];
 
-  let state = 'ready';     // 'ready' | 'airborne'
-  let releaseTime = 0;
-  let bestPeak = 0;
-  let rafId = null;
+  // ---------- persistence ----------
+  function loadBoard() {
+    try { board = JSON.parse(localStorage.getItem(LS_BOARD)) || []; }
+    catch (e) { board = []; }
+  }
+  function saveBoard() {
+    try { localStorage.setItem(LS_BOARD, JSON.stringify(board)); } catch (e) {}
+  }
+  function loadName() {
+    try { player = localStorage.getItem(LS_NAME) || 'Player'; } catch (e) {}
+  }
+  function saveName(n) {
+    player = (n || '').trim() || 'Player';
+    try { localStorage.setItem(LS_NAME, player); } catch (e) {}
+    $pname.textContent = player;
+  }
 
-  function fmt(m) { return m.toFixed(2); }
+  // ---------- leaderboard render ----------
+  function renderBoard(freshId) {
+    const top = board.slice().sort(function (a, b) { return b.h - a.h; }).slice(0, 6);
+    $rows.innerHTML = '';
+    $empty.classList.toggle('hidden', top.length > 0);
+    top.forEach(function (e, i) {
+      const row = document.createElement('div');
+      row.className = 'row' + (e.id === freshId ? ' fresh' : (e.name === player ? ' me' : ''));
+      const medal = ['🥇', '🥈', '🥉'][i] || (i + 1);
+      row.innerHTML =
+        '<span class="rank">' + medal + '</span>' +
+        '<span class="nm"></span>' +
+        '<span class="ht">' + e.h.toFixed(2) + '<span style="font-size:11px;opacity:.6">m</span></span>' +
+        '<span class="ft">' + (e.h * 3.28084).toFixed(1) + ' ft</span>';
+      row.querySelector('.nm').textContent = e.name;
+      $rows.appendChild(row);
+    });
+  }
+
+  function addScore(h) {
+    const id = (board.reduce(function (m, e) { return Math.max(m, e.id || 0); }, 0)) + 1;
+    board.push({ id: id, name: player, h: h });
+    board.sort(function (a, b) { return b.h - a.h; });
+    board = board.slice(0, 25);
+    saveBoard();
+    renderBoard(id);
+    return board.findIndex(function (e) { return e.id === id; }) + 1; // rank (1-based)
+  }
+
+  // ---------- display ----------
   function setHeight(m) {
-    $number.textContent = fmt(m);
+    $number.textContent = m.toFixed(2);
     $feet.textContent = (m * 3.28084).toFixed(1) + ' ft';
   }
 
   function liveLoop() {
     if (state === 'airborne') {
       const t = (performance.now() - releaseTime) / 1000;
-      // height of a free-flight that has been airborne for time t and is
-      // still rising: peaks at 0.5*g*t^2 (exact at the apex). Eye-candy
-      // climb; the true peak is computed from total flight time on catch.
-      const h = 0.5 * G * t * t;
-      setHeight(h);
+      setHeight(0.5 * G * t * t); // eye-candy climb; true peak computed on catch
     }
     rafId = requestAnimationFrame(liveLoop);
   }
 
+  // ---------- motion ----------
   function onMotion(e) {
     const a = e.accelerationIncludingGravity;
     if (!a || a.x == null) return;
@@ -152,20 +231,19 @@
     } else if (state === 'airborne') {
       const flight = now - releaseTime;
       if (mag > LAND_EXIT || flight > MAX_FLIGHT_MS) {
-        // landed / caught
         state = 'ready';
         document.body.classList.remove('airborne');
         if (flight >= MIN_FLIGHT_MS && flight <= MAX_FLIGHT_MS) {
-          const T = flight / 1000;            // total air time (release -> catch)
-          const peak = (G * T * T) / 8;        // peak height above release point
+          const T = flight / 1000;
+          const peak = (G * T * T) / 8;
           bestPeak = Math.max(bestPeak, peak);
           document.body.classList.add('peak');
-          $label.textContent = 'Peak height';
           setHeight(peak);
-          $hint.textContent = 'Airtime ' + T.toFixed(2) + 's · Best ' + bestPeak.toFixed(2) + 'm · toss again!';
-          if (navigator.vibrate) navigator.vibrate(60);
+          const rank = addScore(peak);
+          $label.textContent = (rank === 1 ? '🏆 New #1!' : 'Peak height');
+          $hint.textContent = player + ' · airtime ' + T.toFixed(2) + 's · rank #' + rank + ' · toss again!';
+          if (navigator.vibrate) navigator.vibrate(rank === 1 ? [40, 60, 120] : 60);
         } else {
-          // too short, treat as noise
           $label.textContent = 'Ready';
           setHeight(0);
           $hint.textContent = 'Toss your phone straight up & catch it 🙌';
@@ -174,34 +252,54 @@
     }
   }
 
+  // ---------- lifecycle ----------
   function begin() {
     window.addEventListener('devicemotion', onMotion, true);
-    $start.classList.add('hidden');
     state = 'ready';
     setHeight(0);
     liveLoop();
   }
 
-  $startBtn.addEventListener('click', function () {
-    $err.textContent = '';
-    // iOS 13+ requires explicit permission, triggered by a user gesture
+  $('startBtn').addEventListener('click', function () {
+    $('err').textContent = '';
+    saveName($('nameInput').value);
     if (typeof DeviceMotionEvent !== 'undefined' &&
         typeof DeviceMotionEvent.requestPermission === 'function') {
       DeviceMotionEvent.requestPermission().then(function (res) {
-        if (res === 'granted') {
-          begin();
-        } else {
-          $err.textContent = 'Motion access denied. Enable it in Settings → Safari → Motion & Orientation Access.';
-        }
-      }).catch(function (err) {
-        $err.textContent = 'Could not request motion access: ' + err;
-      });
+        if (res === 'granted') { $('start').classList.add('hidden'); begin(); }
+        else { $('err').textContent = 'Motion access denied. Enable in Settings → Safari → Motion & Orientation Access.'; }
+      }).catch(function (err) { $('err').textContent = 'Could not request motion access: ' + err; });
     } else if (typeof DeviceMotionEvent !== 'undefined') {
-      begin();
+      $('start').classList.add('hidden'); begin();
     } else {
-      $err.textContent = 'This device/browser does not support motion sensors. Open on a phone.';
+      $('err').textContent = 'This device/browser has no motion sensors. Open on a phone.';
     }
   });
+
+  // change player (pass the phone to the next person)
+  $('changeBtn').addEventListener('click', function () {
+    $('nameInput2').value = '';
+    $('nameOverlay').classList.remove('hidden');
+    $('nameInput2').focus();
+  });
+  $('nameSaveBtn').addEventListener('click', function () {
+    saveName($('nameInput2').value);
+    $('nameOverlay').classList.add('hidden');
+    $label.textContent = 'Ready'; setHeight(0);
+    document.body.classList.remove('peak');
+    $hint.textContent = 'Toss your phone straight up & catch it 🙌';
+    renderBoard();
+  });
+
+  $('clearBtn').addEventListener('click', function () {
+    board = []; saveBoard(); renderBoard();
+  });
+
+  // init
+  loadName(); loadBoard();
+  $pname.textContent = player;
+  $('nameInput').value = (player === 'Player' ? '' : player);
+  renderBoard();
 })();
 </script>
 </body>
