@@ -46,6 +46,8 @@
   .row .nm { flex: 1; text-align: left; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .row .ht { font-weight: 800; font-variant-numeric: tabular-nums; }
   .row .ft { font-size: 12px; color: rgba(255,255,255,0.5); width: 52px; text-align: right; }
+  .row .play { flex: none; width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(16,185,129,0.85); color: #fff; font-size: 12px; padding-left: 2px; }
+  .row .play:active { transform: scale(0.92); }
   #empty { font-size: 13px; color: rgba(255,255,255,0.3); padding: 12px 0; }
 
   .overlay { position: fixed; inset: 0; background: rgba(6,8,15,0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 32px; z-index: 10; }
@@ -57,6 +59,8 @@
   .btn { font-size: 20px; font-weight: 700; padding: 18px 44px; border-radius: 999px; border: none; background: #2f6bff; color: #fff; box-shadow: 0 8px 30px rgba(47,107,255,0.5); }
   .btn:active { transform: scale(0.96); }
   #err { color: #ff8080; font-size: 14px; min-height: 1.2em; max-width: 320px; }
+  #vidModal { gap: 16px; }
+  #modalVid { width: 86vw; max-width: 460px; max-height: 64vh; border-radius: 16px; background: #000; }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -96,6 +100,11 @@
     <button id="nameSaveBtn" class="btn">Let's go</button>
   </div>
 
+  <div id="vidModal" class="overlay hidden">
+    <video id="modalVid" playsinline controls autoplay loop></video>
+    <button id="vidClose" class="btn">Close</button>
+  </div>
+
 <script>
 (function () {
   "use strict";
@@ -107,13 +116,15 @@
   const FREEFALL_ENTER = 4.5, LAND_EXIT = 15, MIN_FLIGHT_MS = 120, MAX_FLIGHT_MS = 4000;
   const REC_TAIL_MS = 400;     // keep filming briefly after the catch
   const API = 'https://api.restful-api.dev/objects/ff8081819d82fab6019ecd2e92f3130c';
+  const LB_API = 'https://litterbox.catbox.moe/resources/internals/api.php'; // temp video host (72h)
   const POLL_MS = 3000, MAX_STORE = 50, MAGIC = 'raza';
   const LS_NAME = 'highphone.name';
 
   const $ = function (id) { return document.getElementById(id); };
   const $number=$('number'),$unit=$('unit'),$feet=$('feet'),$label=$('label'),
         $hint=$('hint'),$rows=$('rows'),$empty=$('empty'),$pname=$('pname'),$dot=$('dot'),
-        $clip=$('clip'),$vid=$('flightVid'),$shareBtn=$('shareBtn');
+        $clip=$('clip'),$vid=$('flightVid'),$shareBtn=$('shareBtn'),
+        $vidModal=$('vidModal'),$modalVid=$('modalVid');
 
   let state='ready', releaseTime=0, rafId=null, player='Player';
   let board=[], freshId=null;
@@ -152,6 +163,11 @@
         '<span class="ht">'+e.h.toFixed(2)+'<span style="font-size:11px;opacity:.6">m</span></span>'+
         '<span class="ft">'+(e.h*3.28084).toFixed(1)+' ft</span>';
       row.querySelector('.nm').textContent=e.name+goat;
+      if(e.vid){
+        var pb=document.createElement('button');
+        pb.className='play'; pb.textContent='▶'; pb.dataset.vid=e.vid;
+        row.insertBefore(pb, row.querySelector('.ht'));
+      }
       $rows.appendChild(row);
     });
   }
@@ -209,7 +225,47 @@
     lastClipBlob=blob; lastClipURL=URL.createObjectURL(blob);
     $vid.src=lastClipURL; $clip.classList.remove('hidden');
     var p=$vid.play(); if(p&&p.catch) p.catch(function(){});
+    // upload to the shared host and attach the clip to this toss on the board
+    var vidForId=freshId;
+    uploadClip(blob).then(function(url){ return patchVideo(vidForId, url); })
+      .catch(function(){ /* no shared clip — local save/share still works */ });
   }
+
+  // ---------- shared video host ----------
+  function uploadClip(blob){
+    var ext=(blob.type.indexOf('webm')>=0)?'webm':'mp4';
+    var fd=new FormData();
+    fd.append('reqtype','fileupload');
+    fd.append('time','72h');
+    fd.append('fileToUpload', new File([blob],'high-phone-flight.'+ext,{type:blob.type}));
+    return fetch(LB_API,{method:'POST',body:fd}).then(function(r){return r.text();}).then(function(t){
+      t=(t||'').trim();
+      if(/^https?:\/\/\S+$/.test(t)) return t;
+      throw new Error('upload failed');
+    });
+  }
+  function patchVideo(id,url){
+    if(!id) return Promise.resolve();
+    return fetchBoard().then(function(scores){
+      var changed=false;
+      scores=scores.map(function(e){ if(e.id===id){ e.vid=url; changed=true; } return e; });
+      if(!changed) return;
+      return putBoard(scores).then(function(){ board=scores; renderBoard(); });
+    });
+  }
+  function openVid(src){
+    if(!src) return;
+    $modalVid.src=src; $vidModal.classList.remove('hidden');
+    var p=$modalVid.play(); if(p&&p.catch) p.catch(function(){});
+  }
+  $rows.addEventListener('click', function(ev){
+    var b=ev.target.closest ? ev.target.closest('.play') : null;
+    if(b && b.dataset && b.dataset.vid) openVid(b.dataset.vid);
+  });
+  $('vidClose').addEventListener('click', function(){
+    $modalVid.pause(); $modalVid.removeAttribute('src'); $modalVid.load();
+    $vidModal.classList.add('hidden');
+  });
   $shareBtn.addEventListener('click', function(){
     if(!lastClipBlob) return;
     var ext=(lastClipBlob.type.indexOf('webm')>=0)?'webm':'mp4';
