@@ -9,66 +9,32 @@
   html, body { height: 100%; overflow: hidden; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
-    background: #06080f;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    transition: background 0.25s ease;
-    position: fixed;
-    inset: 0;
+    background: #06080f; color: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; transition: background 0.25s ease;
+    position: fixed; inset: 0;
     padding: env(safe-area-inset-top, 12px) 0 env(safe-area-inset-bottom, 12px);
   }
   body.airborne { background: radial-gradient(circle at 50% 25%, #1d3a8a 0%, #06080f 70%); }
   body.peak     { background: radial-gradient(circle at 50% 30%, #0a6e4a 0%, #06080f 70%); }
 
-  #brand {
-    font-size: 13px; letter-spacing: 4px; font-weight: 700;
-    text-transform: uppercase; color: rgba(255,255,255,0.4);
-    margin-bottom: 4px;
-  }
-  #player {
-    font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 10px;
-  }
+  #brand { font-size: 13px; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+  #player { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
   #player b { color: #6ea0ff; }
-  #player button {
-    background: none; border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.6);
-    border-radius: 999px; font-size: 11px; padding: 3px 10px; margin-left: 6px; font-weight: 600;
-  }
+  #player button { background: none; border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.6); border-radius: 999px; font-size: 11px; padding: 3px 10px; margin-left: 6px; font-weight: 600; }
 
-  #label {
-    font-size: 14px; letter-spacing: 3px; text-transform: uppercase;
-    color: rgba(255,255,255,0.55); margin-bottom: 2px; min-height: 18px; font-weight: 600;
-  }
-  #number {
-    font-size: 26vw; font-weight: 800; line-height: 0.95;
-    font-variant-numeric: tabular-nums; letter-spacing: -2px;
-    text-shadow: 0 0 60px rgba(80,140,255,0.45);
-  }
-  #unit { font-size: 5.5vw; font-weight: 600; color: rgba(255,255,255,0.6); }
-  #feet { font-size: 4.2vw; font-weight: 500; color: rgba(255,255,255,0.4); margin-top: 4px; min-height: 1.2em; }
-  #hint { font-size: 13px; color: rgba(255,255,255,0.45); padding: 8px 24px 0; font-weight: 500; min-height: 2.4em; }
+  #label { font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 2px; min-height: 18px; font-weight: 600; }
+  #number { font-size: 24vw; font-weight: 800; line-height: 0.95; font-variant-numeric: tabular-nums; letter-spacing: -2px; text-shadow: 0 0 60px rgba(80,140,255,0.45); }
+  #unit { font-size: 5vw; font-weight: 600; color: rgba(255,255,255,0.6); }
+  #feet { font-size: 4vw; font-weight: 500; color: rgba(255,255,255,0.4); margin-top: 4px; min-height: 1.2em; }
+  #hint { font-size: 13px; color: rgba(255,255,255,0.45); padding: 6px 24px 0; font-weight: 500; min-height: 2.4em; }
 
-  #board {
-    width: 100%; max-width: 420px; margin-top: 10px; padding: 0 22px;
-  }
-  #board h2 {
-    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-    color: rgba(255,255,255,0.4); margin-bottom: 8px; font-weight: 700;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  #board h2 button {
-    background: none; border: none; color: rgba(255,255,255,0.3); font-size: 11px;
-    text-transform: none; letter-spacing: 0; font-weight: 600;
-  }
+  #board { width: 100%; max-width: 420px; margin-top: 8px; padding: 0 22px; }
+  #board h2 { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  #dot { width: 7px; height: 7px; border-radius: 50%; background: #16b56a; box-shadow: 0 0 8px #16b56a; transition: opacity .2s; }
+  #dot.stale { background: #c9803a; box-shadow: 0 0 8px #c9803a; }
   #rows { display: flex; flex-direction: column; gap: 5px; }
-  .row {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,0.06); border-radius: 12px; padding: 9px 14px;
-    font-size: 16px; transition: background 0.2s;
-  }
+  .row { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.06); border-radius: 12px; padding: 8px 14px; font-size: 16px; transition: background 0.2s; }
   .row.me { background: rgba(46,107,255,0.28); }
   .row.fresh { background: rgba(16,185,129,0.35); }
   .row .rank { width: 22px; font-weight: 800; color: rgba(255,255,255,0.5); text-align: left; }
@@ -77,23 +43,11 @@
   .row .ft { font-size: 12px; color: rgba(255,255,255,0.5); width: 54px; text-align: right; }
   #empty { font-size: 13px; color: rgba(255,255,255,0.3); padding: 14px 0; }
 
-  /* Overlays */
-  .overlay {
-    position: fixed; inset: 0; background: rgba(6,8,15,0.96);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 22px; padding: 32px; z-index: 10;
-  }
+  .overlay { position: fixed; inset: 0; background: rgba(6,8,15,0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 32px; z-index: 10; }
   .overlay h1 { font-size: 13vw; font-weight: 800; letter-spacing: -2px; }
   .overlay p { font-size: 16px; color: rgba(255,255,255,0.55); max-width: 320px; line-height: 1.5; }
-  .overlay input {
-    font-size: 22px; text-align: center; padding: 14px 18px; border-radius: 14px;
-    border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #fff;
-    width: 100%; max-width: 300px; font-weight: 700; font-family: inherit;
-  }
-  .btn {
-    font-size: 20px; font-weight: 700; padding: 18px 44px; border-radius: 999px; border: none;
-    background: #2f6bff; color: #fff; box-shadow: 0 8px 30px rgba(47,107,255,0.5);
-  }
+  .overlay input { font-size: 22px; text-align: center; padding: 14px 18px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #fff; width: 100%; max-width: 300px; font-weight: 700; font-family: inherit; }
+  .btn { font-size: 20px; font-weight: 700; padding: 18px 44px; border-radius: 999px; border: none; background: #2f6bff; color: #fff; box-shadow: 0 8px 30px rgba(47,107,255,0.5); }
   .btn:active { transform: scale(0.96); }
   #err { color: #ff8080; font-size: 14px; min-height: 1.2em; max-width: 320px; }
   .hidden { display: none !important; }
@@ -110,21 +64,19 @@
   <div id="hint">Toss your phone straight up &amp; catch it 🙌</div>
 
   <div id="board">
-    <h2>🏆 Leaderboard <button id="clearBtn">clear</button></h2>
+    <h2><span id="dot"></span> Global Leaderboard</h2>
     <div id="rows"></div>
     <div id="empty">No tosses yet — be the first!</div>
   </div>
 
-  <!-- Start / permission overlay -->
   <div id="start" class="overlay">
     <h1>HIGH&nbsp;PHONE</h1>
-    <p>Throw your phone up and catch it. We'll measure how high it flew.</p>
+    <p>Throw your phone up and catch it. We'll measure how high it flew — and rank you against everyone.</p>
     <input id="nameInput" type="text" placeholder="Your name" maxlength="14" autocomplete="off">
     <button id="startBtn" class="btn">Start</button>
     <div id="err"></div>
   </div>
 
-  <!-- Change-player overlay -->
   <div id="nameOverlay" class="overlay hidden">
     <h1 style="font-size:9vw">Who's next?</h1>
     <input id="nameInput2" type="text" placeholder="Your name" maxlength="14" autocomplete="off">
@@ -135,171 +87,161 @@
 (function () {
   "use strict";
   const G = 9.81;
-  const FREEFALL_ENTER = 3.5;   // m/s^2 below this => airborne
-  const LAND_EXIT      = 6.5;    // m/s^2 above this => caught
-  const MIN_FLIGHT_MS  = 120;
-  const MAX_FLIGHT_MS  = 4000;
-  const LS_BOARD = 'highphone.board';
-  const LS_NAME  = 'highphone.name';
+  const FREEFALL_ENTER = 3.5, LAND_EXIT = 6.5, MIN_FLIGHT_MS = 120, MAX_FLIGHT_MS = 4000;
+  const API = 'https://api.restful-api.dev/objects/ff8081819d82fab6019ecd2e92f3130c';
+  const POLL_MS = 3000;
+  const MAX_STORE = 50;       // entries kept server-side
+  const MAGIC = 'raza';        // 🐐 always ranked #1 (it's a joke)
+  const LS_NAME = 'highphone.name';
 
   const $ = function (id) { return document.getElementById(id); };
-  const $number = $('number'), $unit = $('unit'), $feet = $('feet'),
-        $label = $('label'), $hint = $('hint'), $rows = $('rows'),
-        $empty = $('empty'), $pname = $('pname');
+  const $number=$('number'),$unit=$('unit'),$feet=$('feet'),$label=$('label'),
+        $hint=$('hint'),$rows=$('rows'),$empty=$('empty'),$pname=$('pname'),$dot=$('dot');
 
-  let state = 'ready', releaseTime = 0, bestPeak = 0, rafId = null;
-  let player = 'Player';
-  let board = [];
+  let state='ready', releaseTime=0, rafId=null, player='Player';
+  let board=[];           // [{id,name,h}]
+  let freshId=null;
+  let lastSync=0;
 
-  // ---------- persistence ----------
-  function loadBoard() {
-    try { board = JSON.parse(localStorage.getItem(LS_BOARD)) || []; }
-    catch (e) { board = []; }
+  // ---------- name ----------
+  function loadName(){ try{ player = localStorage.getItem(LS_NAME) || 'Player'; }catch(e){} }
+  function saveName(n){ player=(n||'').trim()||'Player'; try{ localStorage.setItem(LS_NAME,player); }catch(e){} $pname.textContent=player; }
+  function isMagic(n){ return (n||'').trim().toLowerCase() === MAGIC; }
+
+  // ---------- shared store ----------
+  function fetchBoard(){
+    return fetch(API, {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(o){ return (o && o.data && Array.isArray(o.data.scores)) ? o.data.scores : []; });
   }
-  function saveBoard() {
-    try { localStorage.setItem(LS_BOARD, JSON.stringify(board)); } catch (e) {}
+  function putBoard(scores){
+    return fetch(API, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({name:'highphone-leaderboard', data:{scores:scores}})
+    });
   }
-  function loadName() {
-    try { player = localStorage.getItem(LS_NAME) || 'Player'; } catch (e) {}
+  function rankValue(e){
+    // joke: the magic name always sorts to the very top
+    return isMagic(e.name) ? Infinity : e.h;
   }
-  function saveName(n) {
-    player = (n || '').trim() || 'Player';
-    try { localStorage.setItem(LS_NAME, player); } catch (e) {}
-    $pname.textContent = player;
+  function sortBoard(arr){
+    return arr.slice().sort(function(a,b){ return rankValue(b) - rankValue(a); });
   }
 
-  // ---------- leaderboard render ----------
-  function renderBoard(freshId) {
-    const top = board.slice().sort(function (a, b) { return b.h - a.h; }).slice(0, 6);
-    $rows.innerHTML = '';
-    $empty.classList.toggle('hidden', top.length > 0);
-    top.forEach(function (e, i) {
-      const row = document.createElement('div');
-      row.className = 'row' + (e.id === freshId ? ' fresh' : (e.name === player ? ' me' : ''));
-      const medal = ['🥇', '🥈', '🥉'][i] || (i + 1);
+  function setSynced(ok){
+    $dot.classList.toggle('stale', !ok);
+    $dot.title = ok ? 'Live' : 'Offline — showing local scores';
+  }
+
+  function renderBoard(){
+    const top = sortBoard(board).slice(0,8);
+    $rows.innerHTML='';
+    $empty.classList.toggle('hidden', top.length>0);
+    top.forEach(function(e,i){
+      const row=document.createElement('div');
+      row.className='row'+(e.id===freshId?' fresh':(e.name===player?' me':''));
+      const medal=['🥇','🥈','🥉'][i] || (i+1);
+      const goat = isMagic(e.name) ? ' 🐐' : '';
       row.innerHTML =
-        '<span class="rank">' + medal + '</span>' +
-        '<span class="nm"></span>' +
-        '<span class="ht">' + e.h.toFixed(2) + '<span style="font-size:11px;opacity:.6">m</span></span>' +
-        '<span class="ft">' + (e.h * 3.28084).toFixed(1) + ' ft</span>';
-      row.querySelector('.nm').textContent = e.name;
+        '<span class="rank">'+medal+'</span>'+
+        '<span class="nm"></span>'+
+        '<span class="ht">'+e.h.toFixed(2)+'<span style="font-size:11px;opacity:.6">m</span></span>'+
+        '<span class="ft">'+(e.h*3.28084).toFixed(1)+' ft</span>';
+      row.querySelector('.nm').textContent = e.name + goat;
       $rows.appendChild(row);
     });
   }
 
-  function addScore(h) {
-    const id = (board.reduce(function (m, e) { return Math.max(m, e.id || 0); }, 0)) + 1;
-    board.push({ id: id, name: player, h: h });
-    board.sort(function (a, b) { return b.h - a.h; });
-    board = board.slice(0, 25);
-    saveBoard();
-    renderBoard(id);
-    return board.findIndex(function (e) { return e.id === id; }) + 1; // rank (1-based)
+  function syncBoard(){
+    return fetchBoard().then(function(scores){
+      board = scores; lastSync = performance.now(); setSynced(true);
+      renderBoard();
+    }).catch(function(){ setSynced(false); });
   }
 
-  // ---------- display ----------
-  function setHeight(m) {
-    $number.textContent = m.toFixed(2);
-    $feet.textContent = (m * 3.28084).toFixed(1) + ' ft';
+  // submit a score: read-modify-write so we don't clobber others
+  function submitScore(h){
+    const entry = { id: 'e'+Math.floor(performance.now())+'_'+Math.floor(Math.random()*1e6), name: player, h: h };
+    freshId = entry.id;
+    board = board.concat([entry]); renderBoard();   // optimistic
+    return fetchBoard().then(function(scores){
+      scores = scores.concat([entry]);
+      // keep the best MAX_STORE by height (magic name protected by big rank)
+      scores = scores.sort(function(a,b){ return rankValue(b)-rankValue(a); }).slice(0, MAX_STORE);
+      return putBoard(scores).then(function(){ board = scores; setSynced(true); renderBoard(); });
+    }).catch(function(){ setSynced(false); /* keep optimistic local copy */ });
   }
 
-  function liveLoop() {
-    if (state === 'airborne') {
-      const t = (performance.now() - releaseTime) / 1000;
-      setHeight(0.5 * G * t * t); // eye-candy climb; true peak computed on catch
-    }
-    rafId = requestAnimationFrame(liveLoop);
+  function myRank(h){
+    const sorted = sortBoard(board);
+    for (var i=0;i<sorted.length;i++){ if (sorted[i].id===freshId) return i+1; }
+    return sorted.length;
   }
 
-  // ---------- motion ----------
-  function onMotion(e) {
-    const a = e.accelerationIncludingGravity;
-    if (!a || a.x == null) return;
-    const mag = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
-    const now = performance.now();
-
-    if (state === 'ready') {
-      if (mag < FREEFALL_ENTER) {
-        state = 'airborne';
-        releaseTime = now;
-        document.body.classList.remove('peak');
-        document.body.classList.add('airborne');
-        $label.textContent = 'In the air…';
-        $unit.textContent = 'meters';
-        $hint.textContent = 'Catch it! 🙌';
+  // ---------- display / motion ----------
+  function setHeight(m){ $number.textContent=m.toFixed(2); $feet.textContent=(m*3.28084).toFixed(1)+' ft'; }
+  function liveLoop(){
+    if(state==='airborne'){ const t=(performance.now()-releaseTime)/1000; setHeight(0.5*G*t*t); }
+    rafId=requestAnimationFrame(liveLoop);
+  }
+  function onMotion(e){
+    const a=e.accelerationIncludingGravity; if(!a||a.x==null) return;
+    const mag=Math.sqrt(a.x*a.x+a.y*a.y+a.z*a.z); const now=performance.now();
+    if(state==='ready'){
+      if(mag<FREEFALL_ENTER){
+        state='airborne'; releaseTime=now;
+        document.body.classList.remove('peak'); document.body.classList.add('airborne');
+        $label.textContent='In the air…'; $unit.textContent='meters'; $hint.textContent='Catch it! 🙌';
       }
-    } else if (state === 'airborne') {
-      const flight = now - releaseTime;
-      if (mag > LAND_EXIT || flight > MAX_FLIGHT_MS) {
-        state = 'ready';
-        document.body.classList.remove('airborne');
-        if (flight >= MIN_FLIGHT_MS && flight <= MAX_FLIGHT_MS) {
-          const T = flight / 1000;
-          const peak = (G * T * T) / 8;
-          bestPeak = Math.max(bestPeak, peak);
-          document.body.classList.add('peak');
-          setHeight(peak);
-          const rank = addScore(peak);
-          $label.textContent = (rank === 1 ? '🏆 New #1!' : 'Peak height');
-          $hint.textContent = player + ' · airtime ' + T.toFixed(2) + 's · rank #' + rank + ' · toss again!';
-          if (navigator.vibrate) navigator.vibrate(rank === 1 ? [40, 60, 120] : 60);
+    } else if(state==='airborne'){
+      const flight=now-releaseTime;
+      if(mag>LAND_EXIT || flight>MAX_FLIGHT_MS){
+        state='ready'; document.body.classList.remove('airborne');
+        if(flight>=MIN_FLIGHT_MS && flight<=MAX_FLIGHT_MS){
+          const T=flight/1000, peak=(G*T*T)/8;
+          document.body.classList.add('peak'); setHeight(peak);
+          submitScore(peak).then(function(){
+            const rank=myRank(peak);
+            $label.textContent = (rank===1 ? '🏆 New #1!' : 'Peak height');
+            $hint.textContent = player+' · airtime '+T.toFixed(2)+'s · global rank #'+rank+' · toss again!';
+            if(navigator.vibrate) navigator.vibrate(rank===1?[40,60,120]:60);
+          });
         } else {
-          $label.textContent = 'Ready';
-          setHeight(0);
-          $hint.textContent = 'Toss your phone straight up & catch it 🙌';
+          $label.textContent='Ready'; setHeight(0);
+          $hint.textContent='Toss your phone straight up & catch it 🙌';
         }
       }
     }
   }
 
-  // ---------- lifecycle ----------
-  function begin() {
+  function begin(){
     window.addEventListener('devicemotion', onMotion, true);
-    state = 'ready';
-    setHeight(0);
-    liveLoop();
+    state='ready'; setHeight(0); liveLoop();
+    syncBoard();
+    setInterval(function(){ if(state!=='airborne') syncBoard(); }, POLL_MS);
   }
 
-  $('startBtn').addEventListener('click', function () {
-    $('err').textContent = '';
-    saveName($('nameInput').value);
-    if (typeof DeviceMotionEvent !== 'undefined' &&
-        typeof DeviceMotionEvent.requestPermission === 'function') {
-      DeviceMotionEvent.requestPermission().then(function (res) {
-        if (res === 'granted') { $('start').classList.add('hidden'); begin(); }
-        else { $('err').textContent = 'Motion access denied. Enable in Settings → Safari → Motion & Orientation Access.'; }
-      }).catch(function (err) { $('err').textContent = 'Could not request motion access: ' + err; });
-    } else if (typeof DeviceMotionEvent !== 'undefined') {
-      $('start').classList.add('hidden'); begin();
-    } else {
-      $('err').textContent = 'This device/browser has no motion sensors. Open on a phone.';
-    }
+  // ---------- controls ----------
+  $('startBtn').addEventListener('click', function(){
+    $('err').textContent=''; saveName($('nameInput').value);
+    if(typeof DeviceMotionEvent!=='undefined' && typeof DeviceMotionEvent.requestPermission==='function'){
+      DeviceMotionEvent.requestPermission().then(function(res){
+        if(res==='granted'){ $('start').classList.add('hidden'); begin(); }
+        else { $('err').textContent='Motion access denied. Enable in Settings → Safari → Motion & Orientation Access.'; }
+      }).catch(function(err){ $('err').textContent='Could not request motion access: '+err; });
+    } else if(typeof DeviceMotionEvent!=='undefined'){ $('start').classList.add('hidden'); begin(); }
+    else { $('err').textContent='This device/browser has no motion sensors. Open on a phone.'; }
   });
-
-  // change player (pass the phone to the next person)
-  $('changeBtn').addEventListener('click', function () {
-    $('nameInput2').value = '';
-    $('nameOverlay').classList.remove('hidden');
-    $('nameInput2').focus();
-  });
-  $('nameSaveBtn').addEventListener('click', function () {
-    saveName($('nameInput2').value);
-    $('nameOverlay').classList.add('hidden');
-    $label.textContent = 'Ready'; setHeight(0);
-    document.body.classList.remove('peak');
-    $hint.textContent = 'Toss your phone straight up & catch it 🙌';
-    renderBoard();
-  });
-
-  $('clearBtn').addEventListener('click', function () {
-    board = []; saveBoard(); renderBoard();
+  $('changeBtn').addEventListener('click', function(){ $('nameInput2').value=''; $('nameOverlay').classList.remove('hidden'); $('nameInput2').focus(); });
+  $('nameSaveBtn').addEventListener('click', function(){
+    saveName($('nameInput2').value); $('nameOverlay').classList.add('hidden');
+    $label.textContent='Ready'; setHeight(0); document.body.classList.remove('peak');
+    $hint.textContent='Toss your phone straight up & catch it 🙌'; freshId=null; renderBoard();
   });
 
   // init
-  loadName(); loadBoard();
-  $pname.textContent = player;
-  $('nameInput').value = (player === 'Player' ? '' : player);
-  renderBoard();
+  loadName(); $pname.textContent=player; $('nameInput').value=(player==='Player'?'':player);
+  syncBoard();
 })();
 </script>
 </body>
