@@ -28,6 +28,7 @@
   #unit { font-size: 4.4vw; font-weight: 600; color: rgba(255,255,255,0.6); }
   #feet { font-size: 3.6vw; font-weight: 500; color: rgba(255,255,255,0.4); margin-top: 2px; min-height: 1.2em; }
   #hint { font-size: 12px; color: rgba(255,255,255,0.45); padding: 4px 24px 0; font-weight: 500; min-height: 2.2em; }
+  #status { font-size: 12px; color: #7fd8b0; padding: 2px 24px 0; font-weight: 600; min-height: 1.2em; }
 
   #clip { display: flex; flex-direction: column; align-items: center; gap: 7px; margin-top: 6px; }
   #flightVid { width: 42vw; max-width: 170px; max-height: 150px; border-radius: 14px; background: #000; box-shadow: 0 6px 24px rgba(0,0,0,.5); object-fit: cover; }
@@ -73,6 +74,7 @@
   <div id="unit">meters</div>
   <div id="feet">0.0 ft</div>
   <div id="hint">Toss your phone straight up &amp; catch it 🙌</div>
+  <div id="status"></div>
 
   <div id="clip" class="hidden">
     <video id="flightVid" playsinline muted loop autoplay></video>
@@ -124,7 +126,8 @@
   const $number=$('number'),$unit=$('unit'),$feet=$('feet'),$label=$('label'),
         $hint=$('hint'),$rows=$('rows'),$empty=$('empty'),$pname=$('pname'),$dot=$('dot'),
         $clip=$('clip'),$vid=$('flightVid'),$shareBtn=$('shareBtn'),
-        $vidModal=$('vidModal'),$modalVid=$('modalVid');
+        $vidModal=$('vidModal'),$modalVid=$('modalVid'),$status=$('status');
+  function setStatus(msg){ $status.textContent=msg||''; }
 
   let state='ready', releaseTime=0, rafId=null, player='Player';
   let board=[], freshId=null;
@@ -147,6 +150,13 @@
     return fetch(API,{method:'PUT',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({name:'highphone-leaderboard',data:{scores:scores}})});
   }
+  // the board is a public store — never trust a clip URL from it unless it's
+  // an https link to the known upload host
+  function isSafeVidUrl(u){
+    try{ var p=new URL(u); return p.protocol==='https:' &&
+      (p.hostname==='litter.catbox.moe'||p.hostname==='litterbox.catbox.moe'); }
+    catch(e){ return false; }
+  }
   function rankValue(e){ return isMagic(e.name)?Infinity:e.h; }
   function sortBoard(arr){ return arr.slice().sort(function(a,b){return rankValue(b)-rankValue(a);}); }
   function setSynced(ok){ $dot.classList.toggle('stale',!ok); $dot.title=ok?'Live':'Offline — local scores'; }
@@ -163,7 +173,7 @@
         '<span class="ht">'+e.h.toFixed(2)+'<span style="font-size:11px;opacity:.6">m</span></span>'+
         '<span class="ft">'+(e.h*3.28084).toFixed(1)+' ft</span>';
       row.querySelector('.nm').textContent=e.name+goat;
-      if(e.vid){
+      if(e.vid && isSafeVidUrl(e.vid)){
         var pb=document.createElement('button');
         pb.className='play'; pb.textContent='▶'; pb.dataset.vid=e.vid;
         row.insertBefore(pb, row.querySelector('.ht'));
@@ -193,9 +203,13 @@
     return '';
   }
   function setupCamera(){
-    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==='undefined'){
-      recordEnabled=false; return;
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+      recordEnabled=false; setStatus('📷 no camera API — height & board still work'); return;
     }
+    if(typeof MediaRecorder==='undefined'){
+      recordEnabled=false; setStatus('📷 no MediaRecorder on this browser — height & board still work'); return;
+    }
+    setStatus('📷 requesting camera…');
     navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false})
       .then(function(s){
         stream=s;
@@ -205,14 +219,15 @@
           recMime=recorder.mimeType||mime||'video/mp4';
           recorder.ondataavailable=function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
           recorder.onstop=onRecStop;
-        }catch(e){ recordEnabled=false; }
+          setStatus('📷 camera ready — toss away!');
+        }catch(e){ recordEnabled=false; setStatus('⚠️ recorder error: '+(e.name||e)); }
       })
-      .catch(function(){ recordEnabled=false; }); // denied → height+board still work
+      .catch(function(err){ recordEnabled=false; setStatus('📷 camera blocked ('+(err.name||err)+') — height & board still work'); });
   }
   function startRec(){
     if(!recordEnabled||!recorder||recorder.state!=='inactive') return;
     chunks=[]; keepClip=true;
-    try{ recorder.start(); }catch(e){}
+    try{ recorder.start(); setStatus('📹 recording flight…'); }catch(e){ setStatus('⚠️ record start failed: '+(e.name||e)); }
   }
   function stopRec(keep){
     keepClip=keep;
@@ -227,8 +242,10 @@
     var p=$vid.play(); if(p&&p.catch) p.catch(function(){});
     // upload to the shared host and attach the clip to this toss on the board
     var vidForId=freshId;
+    setStatus('⬆️ uploading clip ('+Math.round(blob.size/1024)+' KB)…');
     uploadClip(blob).then(function(url){ return patchVideo(vidForId, url); })
-      .catch(function(){ /* no shared clip — local save/share still works */ });
+      .then(function(){ setStatus('✅ clip added to leaderboard — tap ▶'); })
+      .catch(function(err){ setStatus('⚠️ clip upload failed: '+(err.message||err)+' (local save still works)'); });
   }
 
   // ---------- shared video host ----------
@@ -254,7 +271,7 @@
     });
   }
   function openVid(src){
-    if(!src) return;
+    if(!src || !isSafeVidUrl(src)) return;
     $modalVid.src=src; $vidModal.classList.remove('hidden');
     var p=$modalVid.play(); if(p&&p.catch) p.catch(function(){});
   }
@@ -328,13 +345,15 @@
   $('startBtn').addEventListener('click', function(){
     $('err').textContent=''; saveName($('nameInput').value);
     recordEnabled = $('recChk').checked;
-    if(recordEnabled) setupCamera();   // fire inside the gesture so iOS shows the camera prompt
+    // request motion first; once granted, request the camera. Asking for both in
+    // the same gesture makes iOS drop the second prompt, so we sequence them.
+    function go(){ $('start').classList.add('hidden'); begin(); if(recordEnabled) setupCamera(); }
     if(typeof DeviceMotionEvent!=='undefined' && typeof DeviceMotionEvent.requestPermission==='function'){
       DeviceMotionEvent.requestPermission().then(function(res){
-        if(res==='granted'){ $('start').classList.add('hidden'); begin(); }
+        if(res==='granted'){ go(); }
         else { $('err').textContent='Motion access denied. Enable in Settings → Safari → Motion & Orientation Access.'; }
       }).catch(function(err){ $('err').textContent='Could not request motion access: '+err; });
-    } else if(typeof DeviceMotionEvent!=='undefined'){ $('start').classList.add('hidden'); begin(); }
+    } else if(typeof DeviceMotionEvent!=='undefined'){ go(); }
     else { $('err').textContent='This device/browser has no motion sensors. Open on a phone.'; }
   });
   $('changeBtn').addEventListener('click', function(){ $('nameInput2').value=''; $('nameOverlay').classList.remove('hidden'); $('nameInput2').focus(); });
