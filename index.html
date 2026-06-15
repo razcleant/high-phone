@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>High Phone</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+    background: #06080f;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: background 0.25s ease;
+    position: fixed;
+    inset: 0;
+  }
+  body.airborne { background: radial-gradient(circle at 50% 30%, #1d3a8a 0%, #06080f 70%); }
+  body.peak     { background: radial-gradient(circle at 50% 35%, #0a6e4a 0%, #06080f 70%); }
+
+  #brand {
+    position: absolute; top: env(safe-area-inset-top, 18px); left: 0; right: 0;
+    margin-top: 18px;
+    font-size: 15px; letter-spacing: 4px; font-weight: 700;
+    text-transform: uppercase; color: rgba(255,255,255,0.4);
+  }
+
+  #label {
+    font-size: 16px; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(255,255,255,0.55); margin-bottom: 6px; min-height: 20px;
+    font-weight: 600;
+  }
+
+  #number {
+    font-size: 34vw;
+    font-weight: 800;
+    line-height: 0.95;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -2px;
+    text-shadow: 0 0 60px rgba(80,140,255,0.45);
+  }
+  #unit { font-size: 7vw; font-weight: 600; color: rgba(255,255,255,0.6); margin-top: 4px; }
+  #feet { font-size: 5.5vw; font-weight: 500; color: rgba(255,255,255,0.4); margin-top: 10px; min-height: 1.2em; }
+
+  #hint {
+    position: absolute; bottom: env(safe-area-inset-bottom, 30px); left: 0; right: 0;
+    margin-bottom: 28px;
+    font-size: 16px; color: rgba(255,255,255,0.45); padding: 0 24px; font-weight: 500;
+  }
+
+  #start {
+    position: fixed; inset: 0; background: #06080f;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 28px; padding: 32px; z-index: 10;
+  }
+  #start h1 { font-size: 13vw; font-weight: 800; letter-spacing: -2px; }
+  #start p { font-size: 17px; color: rgba(255,255,255,0.55); max-width: 320px; line-height: 1.5; }
+  #startBtn {
+    margin-top: 8px;
+    font-size: 22px; font-weight: 700;
+    padding: 20px 48px; border-radius: 999px; border: none;
+    background: #2f6bff; color: #fff;
+    box-shadow: 0 8px 30px rgba(47,107,255,0.5);
+    cursor: pointer;
+  }
+  #startBtn:active { transform: scale(0.96); }
+  #err { color: #ff8080; font-size: 15px; min-height: 1.2em; max-width: 320px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+  <div id="brand">High&nbsp;Phone</div>
+
+  <div id="label">Ready</div>
+  <div id="number">0.00</div>
+  <div id="unit">meters</div>
+  <div id="feet">0.0 ft</div>
+
+  <div id="hint">Toss your phone straight up &amp; catch it 🙌</div>
+
+  <div id="start">
+    <h1>HIGH&nbsp;PHONE</h1>
+    <p>Throw your phone up and catch it. We'll measure how high it flew.</p>
+    <button id="startBtn">Start</button>
+    <div id="err"></div>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+  const G = 9.81;
+
+  // Tunable thresholds (m/s^2)
+  const FREEFALL_ENTER = 3.5;   // below this magnitude => airborne (weightless)
+  const LAND_EXIT      = 6.5;    // back above this => caught / landed
+  const MIN_FLIGHT_MS  = 120;    // ignore flights shorter than this (noise)
+  const MAX_FLIGHT_MS  = 4000;   // safety reset
+
+  const $number = document.getElementById('number');
+  const $unit   = document.getElementById('unit');
+  const $feet   = document.getElementById('feet');
+  const $label  = document.getElementById('label');
+  const $hint   = document.getElementById('hint');
+  const $start  = document.getElementById('start');
+  const $startBtn = document.getElementById('startBtn');
+  const $err    = document.getElementById('err');
+
+  let state = 'ready';     // 'ready' | 'airborne'
+  let releaseTime = 0;
+  let bestPeak = 0;
+  let rafId = null;
+
+  function fmt(m) { return m.toFixed(2); }
+  function setHeight(m) {
+    $number.textContent = fmt(m);
+    $feet.textContent = (m * 3.28084).toFixed(1) + ' ft';
+  }
+
+  function liveLoop() {
+    if (state === 'airborne') {
+      const t = (performance.now() - releaseTime) / 1000;
+      // height of a free-flight that has been airborne for time t and is
+      // still rising: peaks at 0.5*g*t^2 (exact at the apex). Eye-candy
+      // climb; the true peak is computed from total flight time on catch.
+      const h = 0.5 * G * t * t;
+      setHeight(h);
+    }
+    rafId = requestAnimationFrame(liveLoop);
+  }
+
+  function onMotion(e) {
+    const a = e.accelerationIncludingGravity;
+    if (!a || a.x == null) return;
+    const mag = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+    const now = performance.now();
+
+    if (state === 'ready') {
+      if (mag < FREEFALL_ENTER) {
+        state = 'airborne';
+        releaseTime = now;
+        document.body.classList.remove('peak');
+        document.body.classList.add('airborne');
+        $label.textContent = 'In the air…';
+        $unit.textContent = 'meters';
+        $hint.textContent = 'Catch it! 🙌';
+      }
+    } else if (state === 'airborne') {
+      const flight = now - releaseTime;
+      if (mag > LAND_EXIT || flight > MAX_FLIGHT_MS) {
+        // landed / caught
+        state = 'ready';
+        document.body.classList.remove('airborne');
+        if (flight >= MIN_FLIGHT_MS && flight <= MAX_FLIGHT_MS) {
+          const T = flight / 1000;            // total air time (release -> catch)
+          const peak = (G * T * T) / 8;        // peak height above release point
+          bestPeak = Math.max(bestPeak, peak);
+          document.body.classList.add('peak');
+          $label.textContent = 'Peak height';
+          setHeight(peak);
+          $hint.textContent = 'Airtime ' + T.toFixed(2) + 's · Best ' + bestPeak.toFixed(2) + 'm · toss again!';
+          if (navigator.vibrate) navigator.vibrate(60);
+        } else {
+          // too short, treat as noise
+          $label.textContent = 'Ready';
+          setHeight(0);
+          $hint.textContent = 'Toss your phone straight up & catch it 🙌';
+        }
+      }
+    }
+  }
+
+  function begin() {
+    window.addEventListener('devicemotion', onMotion, true);
+    $start.classList.add('hidden');
+    state = 'ready';
+    setHeight(0);
+    liveLoop();
+  }
+
+  $startBtn.addEventListener('click', function () {
+    $err.textContent = '';
+    // iOS 13+ requires explicit permission, triggered by a user gesture
+    if (typeof DeviceMotionEvent !== 'undefined' &&
+        typeof DeviceMotionEvent.requestPermission === 'function') {
+      DeviceMotionEvent.requestPermission().then(function (res) {
+        if (res === 'granted') {
+          begin();
+        } else {
+          $err.textContent = 'Motion access denied. Enable it in Settings → Safari → Motion & Orientation Access.';
+        }
+      }).catch(function (err) {
+        $err.textContent = 'Could not request motion access: ' + err;
+      });
+    } else if (typeof DeviceMotionEvent !== 'undefined') {
+      begin();
+    } else {
+      $err.textContent = 'This device/browser does not support motion sensors. Open on a phone.';
+    }
+  });
+})();
+</script>
+</body>
+</html>
