@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>High Phone</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -127,8 +128,8 @@
   const REC_TAIL_MS = 400;     // keep filming briefly after the catch
   const API = 'https://api.restful-api.dev/objects/ff8081819d82fab6019ecd2e92f3130c';
   const LB_API = 'https://litterbox.catbox.moe/resources/internals/api.php'; // temp video host (72h)
-  const POLL_MS = 3000, MAX_STORE = 50, MAGIC = 'raza';
-  const LS_NAME = 'highphone.name';
+  const POLL_MS = 6000, MAX_STORE = 50, MAGIC = 'raza';
+  const LS_NAME = 'highphone.name', LS_BOARD = 'highphone.board';
 
   const $ = function (id) { return document.getElementById(id); };
   const $number=$('number'),$unit=$('unit'),$feet=$('feet'),$label=$('label'),
@@ -138,7 +139,7 @@
   function setStatus(msg){ $status.textContent=msg||''; }
 
   let state='ready', releaseTime=0, rafId=null, player='Player';
-  let board=[], freshId=null;
+  let board=[], freshId=null, lastReadOk=true;
 
   // camera / recording
   let recordEnabled=false, stream=null, recorder=null, recMime='video/mp4';
@@ -180,9 +181,13 @@
   }
   function setSynced(ok){ $dot.classList.toggle('stale',!ok); $dot.title=ok?'Live':'Offline — local scores'; }
 
+  function saveBoardLocal(){ try{ localStorage.setItem(LS_BOARD, JSON.stringify(board)); }catch(e){} }
   function renderBoard(){
+    saveBoardLocal(); // keep a local copy so a throttled/failed fetch never blanks the board
     const top=sortBoard(board).slice(0,6);
-    $rows.innerHTML=''; $empty.classList.toggle('hidden',top.length>0);
+    $rows.innerHTML='';
+    $empty.textContent = lastReadOk ? 'No tosses yet — be the first!' : '⚠️ Leaderboard offline (network/rate limit) — showing last seen';
+    $empty.classList.toggle('hidden',top.length>0);
     top.forEach(function(e,i){
       const row=document.createElement('div');
       row.className='row'+(e.id===freshId?' fresh':(e.name===player?' me':''));
@@ -201,8 +206,8 @@
     });
   }
   function syncBoard(){
-    return fetchBoard().then(function(s){ board=mergeScores(s, board); setSynced(true); renderBoard(); })
-      .catch(function(){ setSynced(false); }); // keep last-known board on a bad read
+    return fetchBoard().then(function(s){ lastReadOk=true; board=mergeScores(s, board); setSynced(true); renderBoard(); })
+      .catch(function(){ lastReadOk=false; setSynced(false); renderBoard(); }); // keep last-known board on a bad read
   }
   function submitScore(h){
     const entry={id:'e'+Math.floor(performance.now())+'_'+Math.floor(Math.random()*1e6),name:player,h:h};
@@ -393,7 +398,9 @@
 
   // init
   loadName(); $pname.textContent=player; $('nameInput').value=(player==='Player'?'':player);
-  syncBoard();
+  try{ var cached=JSON.parse(localStorage.getItem(LS_BOARD)); if(Array.isArray(cached)) board=mergeScores(cached, []); }catch(e){}
+  renderBoard();   // show last-known names immediately
+  syncBoard();     // then refresh from the server
 })();
 </script>
 </body>
